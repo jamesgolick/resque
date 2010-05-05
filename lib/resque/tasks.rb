@@ -41,6 +41,8 @@ namespace :resque do
   task :preforking_worker do
     require 'resque'
 
+    GC.respond_to?(:copy_on_write_friendly=) && GC.copy_on_write_friendly = true
+
     queues       = (ENV['QUEUES'] || ENV['QUEUE']).to_s.split(',')
     verbose      = ENV['LOGGING'] || ENV['VERBOSE']
     very_verbose = ENV['VVERBOSE']
