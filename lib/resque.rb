@@ -100,6 +100,22 @@ module Resque
     @after_fork = after_fork
   end
 
+  # The `after_prefork` hook will be run in workers if you are using the
+  # preforking master worker to save memory. Use this hook to reload
+  # database connections and so forth to ensure that they're not shared
+  # among workers.
+  #
+  # Call with a block to set the hook.
+  # Call with no arguments to return the hook.
+  def after_prefork(&block)
+    block ? (@after_prefork = block) : @after_prefork
+  end
+
+  # Set the after_prefork proc.
+  def after_prefork=(after_prefork)
+    @after_prefork = after_prefork
+  end
+
   def to_s
     "Resque Client connected to #{redis.server}"
   end
