@@ -11,6 +11,7 @@ module Resque
 
     def start
       procline "(master)"
+      register_signal_handlers
       loop do
         reap_workers
         start_missing_workers
@@ -46,6 +47,27 @@ module Resque
         end
       rescue Errno::ECHILD
       end
+    end
+
+    def register_signal_handlers
+      trap('TERM') { shutdown }
+      trap('INT')  { shutdown }
+      trap('QUIT') { shutdown }
+    end
+
+    def shutdown(timeout = 10)
+      limit = Time.now + timeout
+      until @workers.empty? || Time.now > limit
+        kill_all_workers
+        sleep(0.1)
+        reap_workers
+      end
+      kill_all_workers("KILL")
+      exit
+    end
+
+    def kill_all_workers(signal = "QUIT")
+      @workers.keys.each { |pid| Process.kill(signal, pid) }
     end
 
     def procline(string)
