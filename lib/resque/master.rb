@@ -10,11 +10,12 @@ module Resque
     end
 
     def start
-      procline "(master)"
+      procline "(startup)"
       register_signal_handlers
       loop do
         reap_workers
         start_missing_workers
+        procline "(running)"
         sleep(2)
       end
     end
@@ -56,6 +57,7 @@ module Resque
     end
 
     def shutdown(timeout = 10)
+      procline "(shutting down)"
       limit = Time.now + timeout
       until @workers.empty? || Time.now > limit
         kill_all_workers
@@ -71,7 +73,7 @@ module Resque
     end
 
     def procline(string)
-      $0 = "resque-#{Resque::Version}: #{string}"
+      $0 = "resque-master-#{Resque::Version}: #{string}"
     end
   end
 end
