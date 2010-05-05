@@ -36,4 +36,19 @@ namespace :resque do
 
     threads.each { |thread| thread.join }
   end
+
+  desc "Start the preforking Resque worker."
+  task :preforking_worker do
+    require 'resque'
+
+    queues       = (ENV['QUEUES'] || ENV['QUEUE']).to_s.split(',')
+    verbose      = ENV['LOGGING'] || ENV['VERBOSE']
+    very_verbose = ENV['VVERBOSE']
+    workers      = ENV['WORKERS'].to_i
+    interval     = ENV['INTERVAL'] || 5
+
+    master = Resque::Master.new(workers, queues, verbose,
+                                very_verbose, interval)
+    master.start
+  end
 end
