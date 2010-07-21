@@ -14,7 +14,8 @@ module Resque
           :queue     => queue
         }
         data = Resque.encode(data)
-        Resque.redis.rpush(:failed, data)
+        Resque.redis.lpush(:failed, data)
+        Resque.redis.ltrim(:failed, 0, 3000)
       end
 
       def self.count
